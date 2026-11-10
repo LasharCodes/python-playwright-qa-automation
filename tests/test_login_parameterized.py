@@ -1,6 +1,8 @@
 import pytest
 from playwright.sync_api import Page, expect
 
+from pages.login_page import LoginPage
+
 @pytest.mark.parametrize(
     "username, password, expected_error",
     [
@@ -37,14 +39,8 @@ def test_invalid_login_scenarios(
     password: str,
     expected_error: str,
 ):
-    page.goto("https://www.saucedemo.com/")
+    login_page = LoginPage(page)
 
-    page.get_by_placeholder("Username").fill(username)
-    page.get_by_placeholder("Password").fill(password)
-    page.get_by_role("button", name="Login").click()
-
-    error_message = page.locator('[data-test="error"]')
-
-    error_message = page.locator('[data-test="error"]')
-
-    expect(error_message).to_have_text(expected_error)
+    login_page.open()
+    login_page.login(username,password)
+    login_page.expect_error(expected_error)
