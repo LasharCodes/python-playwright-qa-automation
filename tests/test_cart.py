@@ -1,44 +1,21 @@
 from playwright.sync_api import Page, expect
+from pages.inventory_page import InventoryPage
 
-from helpers import login
+def test_add_to_cart(logged_in_page: Page):
+    inventory = InventoryPage(logged_in_page)
 
-def test_add_product_to_cart(logged_in_page: Page):
-    page = logged_in_page
+    inventory.add_backpack_to_cart()
+    inventory.expect_cart_badge_count(1)
+
+
+
+def test_remove_from_cart(logged_in_page: Page):
+    inventory = InventoryPage(logged_in_page)
+
+    inventory.add_backpack_to_cart()
+    inventory.expect_cart_badge_count(1)
+
+    inventory.remove_backpack_from_cart()
+
+    inventory.expect_empty_cart()
     
-
-    # Verify we're on the products page
-    expect(page).to_have_url(
-        "https://www.saucedemo.com/inventory.html"
-    )
-
-    # Add a Backpack to the cart
-    page.locator(
-        '[data-test="add-to-cart-sauce-labs-backpack"]'
-        ).click()
-    # Verify the cart badge shows 1 item
-    expect(
-        page.locator('[data-test="shopping-cart-badge"]')
-    ).to_have_text("1")
-
-def test_remove_product_cart(logged_in_page: Page):
-    page = logged_in_page
-
-    # Add a backpack
-    page.locator(
-        '[data-test="add-to-cart-sauce-labs-backpack"]'
-    ).click()
-
-    # Verify it was added
-    expect(
-        page.locator('[data-test="shopping-cart-badge"]')
-    ).to_have_text("1")
-
-    # Remove the backpack
-    page.locator(
-        '[data-test="remove-sauce-labs-backpack"]'
-    ).click()
-
-    # Verify the cart is empty
-    expect(
-        page.locator('[data-test="shopping-cart-badge"]')
-    ).to_have_count(0)
