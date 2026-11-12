@@ -1,37 +1,37 @@
 from playwright.sync_api import Page, expect
 
-from helpers import login
+from pages.inventory_page import InventoryPage
+from pages.checkout_page import CheckoutPage 
 
-def test_complete_checkout(page: Page):
-    page.goto("https://www.saucedemo.com/")
 
-    # Login
-    login(page)
+def test_complete_checkout(logged_in_page: Page):
+    inventory = InventoryPage(logged_in_page)
+    checkout = CheckoutPage(logged_in_page)
+   
 
     # Add a product
-    page.locator(
-        '[data-test="add-to-cart-sauce-labs-backpack"]'
-    ).click()
+    inventory.add_backpack_to_cart()
+    inventory.expect_cart_badge_count(1)
 
     # Open shopping cart
-    page.locator('[data-test="shopping-cart-link"]').click()
+    inventory.open_cart()
 
-    # Begin checkout
-    page.locator('[data-test="checkout"]').click()
+    # Start checkout
+    checkout.start_checkout()
 
     # Enter customer information
-    page.locator('[data-test="firstName"]').fill('John')
-    page.locator('[data-test="lastName"]').fill('Smith')
-    page.locator('[data-test="postalCode"]').fill('45424')
+    checkout.enter_customer_information(
+        "John",
+        "Doe",
+        "45424",
+    )
 
     # Continue to order overview
-    page.locator('[data-test="continue"]').click()
+    checkout.continue_checkout()
 
     # Complete purchase
-    page.locator('[data-test="finish"]').click()
+    checkout.finish_checkout()
 
     # Verify order confirmation
-    expect(
-        page.locator('[data-test="complete-header"]')
-    ).to_have_text("Thank you for your order!")
+    checkout.expect_order_complete()
     
