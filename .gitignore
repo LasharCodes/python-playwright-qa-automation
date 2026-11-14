@@ -18,3 +18,7 @@ reports/
 
 # VS Code local settings
 .vscode/
+
+screenshots/
+
+test-results/
