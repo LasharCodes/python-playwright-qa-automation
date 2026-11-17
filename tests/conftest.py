@@ -1,7 +1,8 @@
 from pathlib import Path
 import pytest
-from playwright.sync_api import Page 
+from playwright.sync_api import Page, Playwright, APIRequestContext
 from helpers import login
+
 
 @pytest.fixture
 def logged_in_page(page: Page):
@@ -39,4 +40,13 @@ def pytest_runtest_makereport(item, call):
 
     if report.when == "call":
         item.rep_call = report
+
+@pytest.fixture
+def api_request(playwright: Playwright) -> APIRequestContext:
+    request_context = playwright.request.new_context(
+        base_url="https://jsonplaceholder.typicode.com"
+    )
+    yield request_context
+
+    request_context.dispose()
 
