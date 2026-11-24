@@ -1,4 +1,6 @@
-
+import pytest
+from jsonschema import validate, FormatChecker
+from schemas.user_schema import USER_SCHEMA
 
 def test_get_users(api_request):
   response = api_request.get("/users")
@@ -123,4 +125,40 @@ def test_invalid_api_endpoint(api_request):
     assert response.status == 404
 
     print("Invalid endpoint correctly returned 404")
+
+def test_user_json_schema(api_request):
+    response = api_request.get("/users/1")
+
+    assert response.status == 200
+
+    user = response.json()
+    
+    validate(
+        instance=user, 
+        schema=USER_SCHEMA,
+        format_checker=FormatChecker(),
+    )
+
+    print("Reusable JSON schema validation passed")
+
+@pytest.mark.parametrize(
+    "user_id",
+    [1, 2, 3, 4, 5]
+)
+def test_multiple_users_schema(api_request, user_id):
+    response = api_request.get(f"/users/{user_id}")
+
+    assert response.status == 200
+
+    user = response.json()
+
+    assert user["id"] == user_id
+
+    validate(
+        instance=user,
+        schema=USER_SCHEMA,
+        format_checker=FormatChecker(),
+    )
+
+    print(f"User {user_id} passed schema validation")
 
